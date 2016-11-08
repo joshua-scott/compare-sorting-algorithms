@@ -52,7 +52,7 @@ namespace PsetS3
             int lengthOfArray = 10;
             bool printUpdates = true;
             
-            Console.WriteLine("Sorting algorithm: {0}\nResults of {1} passes of {2}-int {3} arrays:", 
+            Console.WriteLine("Sorting algorithm: {0}\nResults of {1} passes of {2}-int {3} arrays:\n", 
                 sortingAlgorithm, numberOfSorts, lengthOfArray, orderOfArray);
             
             /* Initialise specified number of arrays of ints
@@ -62,7 +62,7 @@ namespace PsetS3
             for (int i = 0; i < (int)numberOfSorts; i++)
             {
                 if (numberOfSorts > 1 && printUpdates == true)
-                    Console.WriteLine("\n\n\nRound {0}:\n", (i + 1));
+                    Console.WriteLine("\n\nRound {0}:\n", (i + 1));
 
                 // Create array
                 int[] array = MakeArray(lengthOfArray, orderOfArray);
@@ -186,6 +186,9 @@ namespace PsetS3
                 {
                     // Since the next line will compare elements, add 1 to comparisons
                     comparisons++;
+                    if (printUpdates)
+                        Console.Write("^ Compare " + array[j].ToString().PadLeft(2) +
+                            " with " + array[j + 1].ToString().PadLeft(2));
                     if ((array[j] > array[j + 1]))
                     {
                         // Swap them, set 'swapped' to true, count 1 more swap
@@ -196,10 +199,15 @@ namespace PsetS3
                         // Since a swap was made, print array in current state and say what was swapped
                         if (printUpdates)
                         {
+                            Console.WriteLine(", it's bigger so swap:");
                             string message = "swapped " + array[j + 1].ToString().PadLeft(2) +
                                 " with " + array[j].ToString().PadLeft(2);
                             PrintArray(array, message);
                         }
+                    }
+                    else if (printUpdates)
+                    {
+                        Console.WriteLine(", it's not bigger so don't swap");
                     }
                 }
                 // After each loop, we know the biggest element must be sorted
@@ -209,8 +217,11 @@ namespace PsetS3
 
             // Print number of comparisons and swaps that were performed
             if (printUpdates)
+            {
+                Console.WriteLine("Since no swaps were made this pass, we're done!");
                 Console.WriteLine("\nNumber of comparisons: " + comparisons +
                                 "\nNumber of swaps: " + swaps);
+            }
 
             countComparisonsBubble = comparisons;
             countSwapsBubble = swaps;
@@ -222,7 +233,7 @@ namespace PsetS3
          * Doesn't redundantly swap the last remaining element with itself.
          * Time complexity: Worst = n^2, Best = n^2, Average = n^2.
          */
-        private static int[] SelectionSort(int[] array, bool printUpdates, out ulong countComparisons, out ulong countSwaps)
+        private static int[] SelectionSort(int[] array, bool printUpdates, out ulong countComparisonsSelection, out ulong countSwapsSelection)
         {
             if (printUpdates)
                 PrintArray(array, "initial array");
@@ -235,6 +246,8 @@ namespace PsetS3
             // Also, the condition is ( < n-1 ) instead of ( < n ) to avoid swapping the last element with itself.
             for (int firstUnsortedIndex = 0; firstUnsortedIndex < n - 1; firstUnsortedIndex++)
             {
+                if (printUpdates)
+                    Console.WriteLine("Go through unsorted section to find minimum:");
                 // Assume the first unsorted element is the smallest, store its index
                 int min = array[firstUnsortedIndex];
                 int indexOfMin = firstUnsortedIndex;
@@ -243,6 +256,9 @@ namespace PsetS3
                 {
                     // Since the next line will compare elements, add 1 to comparisons
                     comparisons++;
+                    if (printUpdates)
+                        Console.WriteLine("^ Compare " + min.ToString().PadLeft(2) + 
+                            " with " + array[currentIndex].ToString().PadLeft(2));
                     if (array[currentIndex] < min)
                     {
                         min = array[currentIndex];
@@ -256,19 +272,23 @@ namespace PsetS3
                 // Since a swap was made, print array in current state and say what was swapped
                 if (printUpdates)
                 {
+                    Console.WriteLine("Minimum = {0}, swap with first unsorted element:", min);
                     string message = "swapped " + array[indexOfMin].ToString().PadLeft(2) +
-                    " with " + array[firstUnsortedIndex].ToString().PadLeft(2);
+                        " with " + array[firstUnsortedIndex].ToString().PadLeft(2);
                     PrintArray(array, message);
                 }
             }
 
             // Print number of comparisons and swaps that were performed
             if (printUpdates)
+            {
+                Console.WriteLine("Since there's only one element left, it must be in the right place and we're done!");
                 Console.WriteLine("\nNumber of comparisons: " + comparisons +
                                 "\nNumber of swaps: " + swaps);
+            }
 
-            countComparisons = comparisons;
-            countSwaps = swaps;
+            countComparisonsSelection = comparisons;
+            countSwapsSelection = swaps;
             return array;
         }
 
@@ -299,6 +319,10 @@ namespace PsetS3
 
                 // The next line will compare two elements, so add 1 to comparisons
                 comparisons++;
+                if (printUpdates && j > 0)
+                    Console.Write("^ Compare " + currentElement.ToString().PadLeft(2) +
+                        " with " + array[j - 1].ToString().PadLeft(2));
+                bool endReached = false;
                 // Shuffle the required number of previous elements, to 'make room' for the currentElement
                 while (j > 0 && array[j - 1] > currentElement)
                 {
@@ -306,9 +330,28 @@ namespace PsetS3
                     j--;
                     // An element was just moved by one index, so add 1 to shuffles
                     shuffles++;
+
+                    if (printUpdates)
+                        Console.WriteLine(", {0} is bigger so we shuffle it one place up to index {1}", array[j], j);
+
                     // The while condition will now compare two elements again (unless j is now 0), so add 1 to comparisons
                     if (j != 0)
+                    {
                         comparisons++;
+                        if (printUpdates)
+                            Console.Write("^ Compare " + currentElement.ToString().PadLeft(2) +
+                                " with " + array[j - 1].ToString().PadLeft(2));
+                    }
+                    else if (printUpdates)
+                    {
+                        endReached = true;
+                        Console.WriteLine("We've reached the first index so insert {0} here:", currentElement.ToString().PadLeft(2));
+                    }
+                }
+
+                if(printUpdates && !endReached)
+                {
+                    Console.WriteLine(", it's not smaller so we insert {0} here:", currentElement.ToString().PadLeft(2));
                 }
 
                 // Insert the currentElement in its correct index for this pass, and add 1 to insertions
@@ -326,9 +369,12 @@ namespace PsetS3
 
             // Print number of comparisons, shuffles and insertions that were performed
             if (printUpdates)
+            {
+                Console.WriteLine("Since that was the last element, we're done!");
                 Console.WriteLine("\nNumber of comparisons: " + comparisons +
                         "\nNumber of shuffles: " + shuffles +
                         "\nNumber of insertions: " + insertions);
+            }
 
             countComparisonsInsertion = comparisons;
             countShuffles = shuffles;
