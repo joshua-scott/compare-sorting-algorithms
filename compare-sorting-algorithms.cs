@@ -8,55 +8,45 @@ namespace PsetS3
         const string a = "ascending";
         const string d = "descending";
         const string r = "random";
-        
+
         const string B = "Bubble";
         const string S = "Selection";
         const string I = "Insertion";
+        const string Q = "Quick";
         const string A = "All";
 
         // Variables required to count the number of operations
         // Unsigned longs used in all cases to be safe and avoid casting, though not required for all
         // Bubble:
-        static ulong countComparisonsBubble = 0;
         static ulong totalComparisonsBubble = 0;
-        static ulong averageComparisonsBubble = 0;
-        static ulong countSwapsBubble = 0;
         static ulong totalSwapsBubble = 0;
-        static ulong averageSwapsBubble = 0;
         // Selection:
-        static ulong countComparisonsSelection = 0; 
         static ulong totalComparisonsSelection = 0;
-        static ulong averageComparisonsSelection = 0;
-        static ulong countSwapsSelection = 0;
         static ulong totalSwapsSelection = 0;
-        static ulong averageSwapsSelection = 0;
         // Insertion:
-        static ulong countComparisonsInsertion = 0;
         static ulong totalComparisonsInsertion = 0;
-        static ulong averageComparisonsInsertion = 0;
-        static ulong countShuffles;
         static ulong totalShuffles = 0;
-        static ulong averageShuffles = 0;
-        static ulong countInsertions = 0;
         static ulong totalInsertions = 0;
-        static ulong averageInsertions = 0;
+        //Quick:
+        static ulong totalComparisonsQuick = 0;
+        static ulong totalSwapsQuick = 0;
 
         static void Main(string[] args)
         {
             /*
              * Edit these variables to set up!
              */
-            string sortingAlgorithm = A;    // B/S/I/A
+            string sortingAlgorithm = A;    // B/S/I/Q/A
             string orderOfArray = r;        // a/d/r
-            ulong numberOfSorts = 10;
-            int lengthOfArray = 10;
+            ulong numberOfSorts = 1;
+            int lengthOfArray = 50;
             bool printUpdates = true;
-            
-            Console.WriteLine("Sorting algorithm: {0}\nResults of {1} passes of {2}-int {3} arrays:\n", 
+
+            Console.WriteLine("Sorting algorithm: {0}\nResults of {1} passes of {2}-int {3} arrays:\n",
                 sortingAlgorithm, numberOfSorts, lengthOfArray, orderOfArray);
-            
+
             /* Initialise specified number of arrays of ints
-             * Pass each one to Bubble||Selection||Insertion sort
+             * Pass each one to Bubble||Selection||Insertion||Quick sort
              * Count total number of comparisons/swaps/shuffles/insertions as required
              */
             for (int i = 0; i < (int)numberOfSorts; i++)
@@ -67,50 +57,37 @@ namespace PsetS3
                 // Create array
                 int[] array = MakeArray(lengthOfArray, orderOfArray);
 
-                // Call Bubble||Selection||Insertion sort, and add correct variables
+                // Call Bubble||Selection||Insertion||Quick sort, and add correct variables
                 if (sortingAlgorithm == B)
-                {
-                    BubbleSort(array, printUpdates, out countComparisonsBubble, out countSwapsBubble);
-                    totalComparisonsBubble += countComparisonsBubble;
-                    totalSwapsBubble += countSwapsBubble;
-                }
+                    BubbleSort(array, printUpdates);
                 else if (sortingAlgorithm == S)
-                {
-                    SelectionSort(array, printUpdates, out countComparisonsSelection, out countSwapsSelection);
-                    totalComparisonsSelection += countComparisonsSelection;
-                    totalSwapsSelection += countSwapsSelection;
-                }
+                    SelectionSort(array, printUpdates);
                 else if (sortingAlgorithm == I)
-                {
-                    InsertionSort(array, printUpdates, out countComparisonsInsertion, out countShuffles, out countInsertions);
-                    totalComparisonsInsertion += countComparisonsInsertion;
-                    totalShuffles += countShuffles;
-                    totalInsertions += countInsertions;
-                }
-                else if (sortingAlgorithm == A)
+                    InsertionSort(array, printUpdates);
+                else if (sortingAlgorithm == Q)
+                    QuickSort(array, 0, array.Length - 1, printUpdates);
+                else if (sortingAlgorithm == A) 
                 {
                     // Copy each array (since they're arrays of ints, shallow copy is enough)
                     int[] array1 = (int[])array.Clone();
                     int[] array2 = (int[])array.Clone();
+                    int[] array3 = (int[])array.Clone();
 
                     if (printUpdates)
                         Console.WriteLine("Bubble sort:");
-                    BubbleSort(array, printUpdates, out countComparisonsBubble, out countSwapsBubble);
-                    totalComparisonsBubble += countComparisonsBubble;
-                    totalSwapsBubble += countSwapsBubble;
+                    BubbleSort(array, printUpdates);
 
                     if (printUpdates)
                         Console.WriteLine("\nSelection sort:");
-                    SelectionSort(array1, printUpdates, out countComparisonsSelection, out countSwapsSelection);
-                    totalComparisonsSelection += countComparisonsSelection;
-                    totalSwapsSelection += countSwapsSelection;
+                    SelectionSort(array1, printUpdates);
 
                     if (printUpdates)
                         Console.WriteLine("\nInsertion sort:");
-                    InsertionSort(array2, printUpdates, out countComparisonsInsertion, out countShuffles, out countInsertions);
-                    totalComparisonsInsertion += countComparisonsInsertion;
-                    totalShuffles += countShuffles;
-                    totalInsertions += countInsertions;
+                    InsertionSort(array2, printUpdates);
+
+                    if (printUpdates)
+                        Console.WriteLine("\nQuick sort:");
+                    QuickSort(array3, 0, array3.Length - 1, printUpdates);
 
                     if (printUpdates)
                         Console.WriteLine();
@@ -164,7 +141,7 @@ namespace PsetS3
          * and distinguishes between 'sorted' and 'unsorted' parts.
          * Time complexity: Worst = n^2, Best = n, Average = n^2.
          */
-        private static int[] BubbleSort(int[] array, bool printUpdates, out ulong countComparisonsBubble, out ulong countSwapsBubble)
+        private static int[] BubbleSort(int[] array, bool printUpdates)
         {
             if (printUpdates)
                 PrintArray(array, "initial array");
@@ -223,8 +200,8 @@ namespace PsetS3
                                 "\nNumber of swaps: " + swaps);
             }
 
-            countComparisonsBubble = comparisons;
-            countSwapsBubble = swaps;
+            totalComparisonsBubble += comparisons;
+            totalSwapsBubble += swaps;
             return array;
         }
 
@@ -233,7 +210,7 @@ namespace PsetS3
          * Doesn't redundantly swap the last remaining element with itself.
          * Time complexity: Worst = n^2, Best = n^2, Average = n^2.
          */
-        private static int[] SelectionSort(int[] array, bool printUpdates, out ulong countComparisonsSelection, out ulong countSwapsSelection)
+        private static int[] SelectionSort(int[] array, bool printUpdates)
         {
             if (printUpdates)
                 PrintArray(array, "initial array");
@@ -257,7 +234,7 @@ namespace PsetS3
                     // Since the next line will compare elements, add 1 to comparisons
                     comparisons++;
                     if (printUpdates)
-                        Console.WriteLine("^ Compare " + min.ToString().PadLeft(2) + 
+                        Console.WriteLine("^ Compare " + min.ToString().PadLeft(2) +
                             " with " + array[currentIndex].ToString().PadLeft(2));
                     if (array[currentIndex] < min)
                     {
@@ -287,8 +264,8 @@ namespace PsetS3
                                 "\nNumber of swaps: " + swaps);
             }
 
-            countComparisonsSelection = comparisons;
-            countSwapsSelection = swaps;
+            totalComparisonsSelection += comparisons;
+            totalSwapsSelection += swaps;
             return array;
         }
 
@@ -297,7 +274,7 @@ namespace PsetS3
          * At the end, prints a summary of the number of comparisons, shuffles, and insertions.
          * Time complexity: Worst = n^2, Best = n, Average = n^2.
          */
-        private static int[] InsertionSort(int[] array, bool printUpdates, out ulong countComparisonsInsertion, out ulong countShuffles, out ulong countInsertions)
+        private static int[] InsertionSort(int[] array, bool printUpdates)
         {
             if (printUpdates)
                 PrintArray(array, "initial array");
@@ -349,7 +326,7 @@ namespace PsetS3
                     }
                 }
 
-                if(printUpdates && !endReached)
+                if (printUpdates && !endReached)
                 {
                     Console.WriteLine(", it's not smaller so we insert {0} here:", currentElement.ToString().PadLeft(2));
                 }
@@ -376,10 +353,82 @@ namespace PsetS3
                         "\nNumber of insertions: " + insertions);
             }
 
-            countComparisonsInsertion = comparisons;
-            countShuffles = shuffles;
-            countInsertions = insertions;
+            totalComparisonsInsertion += comparisons;
+            totalShuffles += shuffles;
+            totalInsertions += insertions;
             return array;
+        }
+
+        /* Sorts an array using Quick sort algorithm, along with Partition().
+         * Calls Partition(), then makes recursive calls on the left and right of partitionIndex
+         * Time complexity: Worst = n^2, Best = n logn, Average = n logn.
+         */
+        private static void QuickSort(int[] array, int start, int end, bool printUpdates)
+        {
+            if (start == 0 && end == array.Length - 1 && printUpdates)
+                PrintArray(array, "initial array");
+
+            // Base case
+            if (start >= end)
+            {
+                if (printUpdates)
+                    Console.WriteLine(" Base case reached");
+                return;
+            }
+
+            // Call for partition
+            int partitionIndex = Partition(array, start, end, printUpdates);
+            // Left side recursive call
+            if (printUpdates)
+                Console.WriteLine("Recursive call on left side, from index {0} to {1}:", start, partitionIndex - 1);
+            QuickSort(array, start, partitionIndex - 1, printUpdates);
+            // Right side recursive call
+            if (printUpdates)
+                Console.WriteLine("Recursive call on right side, from index {0} to {1}:", partitionIndex + 1, end);
+            QuickSort(array, partitionIndex + 1, end, printUpdates);
+        }
+
+        /* Sets pivot to the last element in given array, and partitionIndex to the first.
+         * Iterates through each element and compares against the pivot.
+         * If it's less than or equal to the pivot, swap it with partitionIndex++.
+         * If it's greater than pivot, leave it alone.
+         * Finally, swap the pivot with the partitionIndex.
+         * Now, all elements <= pivot are on its left, and elements > pivot are on the right.
+         */
+        private static int Partition(int[] array, int start, int end, bool printUpdates)
+        {
+            ulong comparisons = 0;
+            ulong swaps = 0;
+
+            // Set pivot to end and partitionIndex to start
+            int pivot = array[end];
+            int partitionIndex = start;
+            if (printUpdates)
+                Console.WriteLine("Pivot is {0}, move <= elements to left and > to right", pivot);
+
+            // Iterate from start to end
+            for (int i = start; i < end; i++)
+            {
+                // Compare each element to the pivot
+                comparisons++;
+                if (array[i] <= pivot)
+                {
+                    // If it's <= pivot, swap to left of partition
+                    Swap(array, i, partitionIndex);
+                    partitionIndex++;
+                    swaps++;
+                }
+            }
+
+            // Move the pivot to the partition. Now, elements left are <= pivot, right are > pivot
+            Swap(array, end, partitionIndex);
+            swaps++;
+
+            totalComparisonsQuick += comparisons;
+            totalSwapsQuick += swaps;
+
+            PrintArray(array, "Pivot moved to index " + partitionIndex.ToString().PadLeft(2));
+            return partitionIndex;
         }
 
         // Prints the current array with a message to describe the situation
@@ -407,8 +456,8 @@ namespace PsetS3
 
             if (sortingAlgorithm == "Bubble" || sortingAlgorithm == "All")
             {
-                averageComparisonsBubble = totalComparisonsBubble / numberOfSorts;
-                averageSwapsBubble = totalSwapsBubble / numberOfSorts;
+                ulong averageComparisonsBubble = totalComparisonsBubble / numberOfSorts;
+                ulong averageSwapsBubble = totalSwapsBubble / numberOfSorts;
                 if (sortingAlgorithm == "All")
                     Console.WriteLine("Bubble sort results:\n");
                 Console.WriteLine("Total comparisons: {0}\nAverage comparisons: {1}\n", totalComparisonsBubble, averageComparisonsBubble);
@@ -416,8 +465,8 @@ namespace PsetS3
             }
             if (sortingAlgorithm == "Selection" || sortingAlgorithm == "All")
             {
-                averageComparisonsSelection = totalComparisonsSelection / numberOfSorts;
-                averageSwapsSelection = totalSwapsSelection / numberOfSorts;
+                ulong averageComparisonsSelection = totalComparisonsSelection / numberOfSorts;
+                ulong averageSwapsSelection = totalSwapsSelection / numberOfSorts;
                 if (sortingAlgorithm == "All")
                     Console.WriteLine("Selection sort results:\n");
                 Console.WriteLine("Total comparisons: {0}\nAverage comparisons: {1}\n", totalComparisonsSelection, averageComparisonsSelection);
@@ -425,14 +474,23 @@ namespace PsetS3
             }
             if (sortingAlgorithm == "Insertion" || sortingAlgorithm == "All")
             {
-                averageComparisonsInsertion = totalComparisonsInsertion / numberOfSorts;
-                averageShuffles = totalShuffles / numberOfSorts;
-                averageInsertions = totalInsertions / numberOfSorts;
+                ulong averageComparisonsInsertion = totalComparisonsInsertion / numberOfSorts;
+                ulong averageShuffles = totalShuffles / numberOfSorts;
+                ulong averageInsertions = totalInsertions / numberOfSorts;
                 if (sortingAlgorithm == "All")
                     Console.WriteLine("Insertion sort results:\n");
                 Console.WriteLine("Total comparisons: {0}\nAverage comparisons: {1}\n", totalComparisonsInsertion, averageComparisonsInsertion);
                 Console.WriteLine("Total shuffles: {0}\nAverage shuffles: {1}\n", totalShuffles, averageShuffles);
                 Console.WriteLine("Total insertions: {0}\nAverage insertions: {1}\n", totalInsertions, averageInsertions);
+            }
+            if (sortingAlgorithm == "Quick" || sortingAlgorithm == "All")
+            {
+                ulong averageComparisonsQuick = totalComparisonsQuick / numberOfSorts;
+                ulong averageSwapsQuick = totalSwapsQuick / numberOfSorts;
+                if (sortingAlgorithm == "All")
+                    Console.WriteLine("Quick sort results:\n");
+                Console.WriteLine("Total comparisons: {0}\nAverage comparisons: {1}\n", totalComparisonsQuick, averageComparisonsQuick);
+                Console.WriteLine("Total swaps: {0}\nAverage swaps: {1}\n", totalSwapsQuick, averageSwapsQuick);
             }
         }
     }
