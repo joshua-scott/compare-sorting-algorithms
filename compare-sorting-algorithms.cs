@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace PsetS3
+namespace CompareSorts
 {
     class Program
     {
@@ -13,6 +13,7 @@ namespace PsetS3
         const string S = "Selection";
         const string I = "Insertion";
         const string Q = "Quick";
+        const string M = "Merge";
         const string A = "All";
 
         // Variables required to count the number of operations
@@ -30,16 +31,19 @@ namespace PsetS3
         //Quick:
         static ulong totalComparisonsQuick = 0;
         static ulong totalSwapsQuick = 0;
+        //Merge:
+        static ulong totalComparisonsMerge = 0;
+        static ulong totalSwapsMerge = 0;
 
         static void Main(string[] args)
         {
             /*
              * Edit these variables to set up!
              */
-            string sortingAlgorithm = A;    // B/S/I/Q/A
+            string sortingAlgorithm = A;    // B/S/I/Q/M/A
             string orderOfArray = r;        // a/d/r
             ulong numberOfSorts = 1;
-            int lengthOfArray = 50;
+            int lengthOfArray = 10;
             bool printUpdates = true;
 
             Console.WriteLine("Sorting algorithm: {0}\nResults of {1} passes of {2}-int {3} arrays:\n",
@@ -57,7 +61,10 @@ namespace PsetS3
                 // Create array
                 int[] array = MakeArray(lengthOfArray, orderOfArray);
 
-                // Call Bubble||Selection||Insertion||Quick sort, and add correct variables
+                if (printUpdates && sortingAlgorithm != A)
+                    PrintArray(array, "initial array");
+
+                // Call Bubble||Selection||Insertion||Quick||Merge sort, and add correct variables
                 if (sortingAlgorithm == B)
                     BubbleSort(array, printUpdates);
                 else if (sortingAlgorithm == S)
@@ -66,28 +73,50 @@ namespace PsetS3
                     InsertionSort(array, printUpdates);
                 else if (sortingAlgorithm == Q)
                     QuickSort(array, 0, array.Length - 1, printUpdates);
-                else if (sortingAlgorithm == A) 
+                else if (sortingAlgorithm == M)
+                    MergeSort(array, printUpdates);
+                else if (sortingAlgorithm == A)
                 {
                     // Copy each array (since they're arrays of ints, shallow copy is enough)
                     int[] array1 = (int[])array.Clone();
                     int[] array2 = (int[])array.Clone();
                     int[] array3 = (int[])array.Clone();
+                    int[] array4 = (int[])array.Clone();
 
                     if (printUpdates)
-                        Console.WriteLine("Bubble sort:");
+                    {
+                        Console.WriteLine("\nBubble sort:");
+                        PrintArray(array, "initial array");
+                    }
                     BubbleSort(array, printUpdates);
 
                     if (printUpdates)
+                    {
                         Console.WriteLine("\nSelection sort:");
+                        PrintArray(array, "initial array");
+                    }
                     SelectionSort(array1, printUpdates);
 
                     if (printUpdates)
+                    {
                         Console.WriteLine("\nInsertion sort:");
+                        PrintArray(array, "initial array");
+                    }
                     InsertionSort(array2, printUpdates);
 
                     if (printUpdates)
+                    {
                         Console.WriteLine("\nQuick sort:");
+                        PrintArray(array, "initial array");
+                    }
                     QuickSort(array3, 0, array3.Length - 1, printUpdates);
+
+                    if (printUpdates)
+                    {
+                        Console.WriteLine("\nMerge sort:");
+                        PrintArray(array, "initial array");
+                    }
+                    MergeSort(array4, printUpdates);
 
                     if (printUpdates)
                         Console.WriteLine();
@@ -143,9 +172,6 @@ namespace PsetS3
          */
         private static int[] BubbleSort(int[] array, bool printUpdates)
         {
-            if (printUpdates)
-                PrintArray(array, "initial array");
-
             ulong comparisons = 0;
             ulong swaps = 0;
             // Get (length - 1) because we compare with (j + 1)
@@ -212,9 +238,6 @@ namespace PsetS3
          */
         private static int[] SelectionSort(int[] array, bool printUpdates)
         {
-            if (printUpdates)
-                PrintArray(array, "initial array");
-
             ulong comparisons = 0;
             ulong swaps = 0;
             int n = array.Length;
@@ -276,9 +299,6 @@ namespace PsetS3
          */
         private static int[] InsertionSort(int[] array, bool printUpdates)
         {
-            if (printUpdates)
-                PrintArray(array, "initial array");
-
             // Since elements aren't directly swapped, it doesn't make sense to count swaps like the other algorithms.
             // Instead, we count shuffles (when an element moves up one index) 
             // and insertions (where the currentElement is inserted into its correct index for that pass)
@@ -365,9 +385,6 @@ namespace PsetS3
          */
         private static void QuickSort(int[] array, int start, int end, bool printUpdates)
         {
-            if (start == 0 && end == array.Length - 1 && printUpdates)
-                PrintArray(array, "initial array");
-
             // Base case
             if (start >= end)
             {
@@ -431,6 +448,81 @@ namespace PsetS3
             return partitionIndex;
         }
 
+        private static void MergeSort(int[] array, bool printUpdates)
+        {
+            int n = array.Length;
+            int mid = n/2;
+
+            // Base case
+            if (n < 2)
+            {
+                if (printUpdates)
+                    Console.WriteLine(" Base case reached");
+                return;
+            }
+
+            // Split the array into two halves
+            if (printUpdates)
+                Console.WriteLine("Recursive call on left side, from index 0 to {0}:", mid - 1);
+            int[] left = new int[mid];
+            Array.Copy(array, 0, left, 0, mid);
+            if (printUpdates)
+                Console.WriteLine("Recursive call on right side, from index {0} to {1}:", mid, n - 1);
+            int[] right = new int[n - mid];
+            Array.Copy(array, mid, right, 0, n - mid);
+
+            //Recursive call to sort the two halves
+            MergeSort(left, printUpdates);
+            MergeSort(right, printUpdates);
+
+            // Call to merge the sorted halves into a sorted whole
+            Merge(array, left, right, printUpdates);
+        }
+
+        // Merges two sorted arrays into one sorted array
+        private static void Merge(int[] array, int[] leftArray, int[] rightArray, bool printUpdates)
+        {
+            ulong comparisons = 0;
+            ulong swaps = 0;
+
+            int leftCount = leftArray.Length;
+            int rightCount = rightArray.Length;
+
+            int l = 0; // index of left sub-array
+            int r = 0; // index of right sub-array
+            int m = 0; // index of merged array
+
+            
+            // Copy the next value in left and right sub-arrays to the main array
+            while (l < leftCount && r < rightCount)
+            {
+                comparisons++;
+                swaps++;
+                if (leftArray[l] < rightArray[r])
+                    array[m++] = leftArray[l++];
+                else
+                    array[m++] = rightArray[r++];
+            }
+            // If end of right subarray reached first, copy remaining elements from left subarray
+            while (l < leftCount)
+            {
+                swaps++;
+                array[m++] = leftArray[l++];
+            }
+            // If end of left subarray reached first, copy remaining elements from right subarray
+            while (r < rightCount)
+            {
+                swaps++;
+                array[m++] = rightArray[r++];
+            }
+                
+            if (printUpdates)
+                PrintArray(array, "<- After a completed Merge of two sub-arrays");
+
+            totalComparisonsMerge += comparisons;
+            totalSwapsMerge += swaps;
+        }
+
         // Prints the current array with a message to describe the situation
         private static void PrintArray(int[] array, string text)
         {
@@ -491,6 +583,15 @@ namespace PsetS3
                     Console.WriteLine("Quick sort results:\n");
                 Console.WriteLine("Total comparisons: {0}\nAverage comparisons: {1}\n", totalComparisonsQuick, averageComparisonsQuick);
                 Console.WriteLine("Total swaps: {0}\nAverage swaps: {1}\n", totalSwapsQuick, averageSwapsQuick);
+            }
+            if (sortingAlgorithm == "Merge" || sortingAlgorithm == "All")
+            {
+                ulong averageComparisonsMerge = totalComparisonsMerge / numberOfSorts;
+                ulong averageSwapsMerge = totalSwapsMerge / numberOfSorts;
+                if (sortingAlgorithm == "All")
+                    Console.WriteLine("Merge sort results:\n");
+                Console.WriteLine("Total comparisons: {0}\nAverage comparisons: {1}\n", totalComparisonsMerge, averageComparisonsMerge);
+                Console.WriteLine("Total swaps: {0}\nAverage swaps: {1}\n", totalSwapsMerge, averageSwapsMerge);
             }
         }
     }
