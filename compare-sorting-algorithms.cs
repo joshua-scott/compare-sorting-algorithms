@@ -448,6 +448,13 @@ namespace CompareSorts
             return partitionIndex;
         }
 
+        /* Sorts an array using Mergesort algorithm, along with Merge().
+         * Splits the array into two halves, then recursively calls Mergesort on each half.
+         * Base case is when there's the array only contains one element (i.e. it must be sorted).
+         * Sorted arrays are then Merged() to create larger sorted arrays.
+         * Time complexity: Worst = n logn, Best = n logn, Average = n logn.
+         * Space complexity: O(n) (note it's usually O(logn) for a linked list version)
+         */
         private static void MergeSort(int[] array, bool printUpdates)
         {
             int n = array.Length;
