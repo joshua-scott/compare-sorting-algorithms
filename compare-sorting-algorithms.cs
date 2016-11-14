@@ -405,7 +405,7 @@ namespace CompareSorts
             QuickSort(array, partitionIndex + 1, end, printUpdates);
         }
 
-        /* Sets pivot to the last element in given array, and partitionIndex to the first.
+        /* Sets pivot to some element in the given array, and partitionIndex to the first.
          * Iterates through each element and compares against the pivot.
          * If it's less than or equal to the pivot, swap it with partitionIndex++.
          * If it's greater than pivot, leave it alone.
@@ -417,20 +417,23 @@ namespace CompareSorts
             ulong comparisons = 0;
             ulong swaps = 0;
 
-            // Set pivot to end and partitionIndex to start
-            int pivot = array[end];
+            // Set pivot (one of three methods, see GetPivot method)
+            int pivotIndex = GetPivot(array, start, end);
+            int pivot = array[pivotIndex];
+            // Set partitionIndex to start
             int partitionIndex = start;
-            if (printUpdates)
-                Console.WriteLine("Pivot is {0}, move <= elements to left and > to right", pivot);
 
-            // Iterate from start to end
+            if (printUpdates)
+                Console.WriteLine("Pivot is {0}, move < elements to left and >= to right", pivot);
+
+            // Iterate from start to end - 1 (because end is always the pivot)
             for (int i = start; i < end; i++)
             {
                 // Compare each element to the pivot
                 comparisons++;
-                if (array[i] <= pivot)
+                if (array[i] < pivot)
                 {
-                    // If it's <= pivot, swap to left of partition
+                    // If it's < pivot, swap to left of partition
                     Swap(array, i, partitionIndex);
                     partitionIndex++;
                     swaps++;
@@ -444,8 +447,71 @@ namespace CompareSorts
             totalComparisonsQuick += comparisons;
             totalSwapsQuick += swaps;
 
-            PrintArray(array, "Pivot moved to index " + partitionIndex.ToString().PadLeft(2));
+            string message = "Pivot was " + pivot.ToString().PadLeft(2) + ", moved to index " + partitionIndex.ToString().PadLeft(2);
+            PrintArray(array, message);
             return partitionIndex;
+        }
+
+        /* Returns the pivot for Quicksort's Partition method.
+         * Choice of three methods of finding the pivot: end, random, and median-of-three
+         * Choose by setting the value of 'pivotMethod' a few lines down.
+         * 
+         * A note on median-of-three from Wikipedia:
+         * "Although this approach optimizes quite well, it is typically outperformed in practice
+         * by instead choosing random pivots, which has average linear time for selection and 
+         * average log-linear time for sorting, and avoids the overhead of computing the pivot."
+         */
+        private static int GetPivot(int[] array, int start, int end)
+        {
+            int pivotMethod = 2;    //Set here: 0 = end, 1 = random, 2 = median-of-three
+
+            // Method 1: Pivot = end
+            // This gives Quicksort a running time O(n^2) in the worst case (already sorted)
+            if (pivotMethod == 0)
+                return end;
+
+            // Method 2: Pivot = random
+            else if (pivotMethod == 1)
+            {
+                // Pivot is the element at a random index in this part of the array
+                Random rnd = new Random();
+                int i = rnd.Next(start, end + 1);
+
+                // Swap the pivot with the end (end is now pivot)
+                Swap(array, i, end);
+                totalSwapsQuick++;
+
+                return end;
+            }
+
+            // Method 3: Pivot = 'median of three', change the array as required
+            else
+            {
+                int mid = (start + end) / 2;
+
+                // Ensure start < mid < end
+                if (array[start] > array[end])
+                {
+                    Swap(array, start, end);
+                    totalSwapsQuick++;
+                }
+                if (array[start] > array[mid])
+                {
+                    Swap(array, start, mid);
+                    totalSwapsQuick++;
+                }
+                if (array[mid] > array[end])
+                {
+                    Swap(array, mid, end);
+                    totalSwapsQuick++;
+                }
+
+                // Swap mid and end (end is now pivot)
+                Swap(array, end, mid);
+                totalSwapsQuick++;
+
+                return end;
+            }
         }
 
         /* Sorts an array using Mergesort algorithm, along with Merge().
@@ -458,7 +524,7 @@ namespace CompareSorts
         private static void MergeSort(int[] array, bool printUpdates)
         {
             int n = array.Length;
-            int mid = n/2;
+            int mid = n / 2;
 
             // Base case
             if (n < 2)
@@ -499,7 +565,7 @@ namespace CompareSorts
             int r = 0; // index of right sub-array
             int m = 0; // index of merged array
 
-            
+
             // Copy the next value in left and right sub-arrays to the main array
             while (l < leftCount && r < rightCount)
             {
@@ -522,7 +588,7 @@ namespace CompareSorts
                 swaps++;
                 array[m++] = rightArray[r++];
             }
-                
+
             if (printUpdates)
                 PrintArray(array, "<- After a completed Merge of two sub-arrays");
 
