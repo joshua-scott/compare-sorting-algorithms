@@ -44,7 +44,7 @@ namespace CompareSorts
             string orderOfArray = r;        // a/d/r
             ulong numberOfSorts = 1;
             int lengthOfArray = 10;
-            bool printUpdates = true;
+            bool printUpdates = false;
 
             Console.WriteLine("Sorting algorithm: {0}\nResults of {1} passes of {2}-int {3} arrays:\n",
                 sortingAlgorithm, numberOfSorts, lengthOfArray, orderOfArray);
@@ -447,8 +447,11 @@ namespace CompareSorts
             totalComparisonsQuick += comparisons;
             totalSwapsQuick += swaps;
 
-            string message = "Pivot was " + pivot.ToString().PadLeft(2) + ", moved to index " + partitionIndex.ToString().PadLeft(2);
-            PrintArray(array, message);
+            if (printUpdates)
+            {
+                string message = "Pivot was " + pivot.ToString().PadLeft(2) + ", moved to index " + partitionIndex.ToString().PadLeft(2);
+                PrintArray(array, message);
+            }
             return partitionIndex;
         }
 
