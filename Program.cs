@@ -9,10 +9,10 @@ namespace CompareSorts
          * Edit these variables to set up!
          */
         const string sortingAlgorithm = CallSpecifiedSort.A,    // B/S/I/Q/M/A (denoting Bubble/Selection/Insertion/Quick/Merge/All)
-                     orderOfInitalArray = CallSpecifiedSort.r;        // a/d/r (denoting ascending/descending/random)
-        const ulong numberOfSorts = 5;
-        const int lengthOfArray = 5;
-        const bool printUpdates = true;
+                     orderOfInitalArray = CallSpecifiedSort.r;  // a/d/r (denoting ascending/descending/random)
+        const ulong numberOfSorts = 5;                          // how many times to sort the array
+        const int lengthOfArray = 5;                            // how many elements to sort. Use no more than 99 if printUpdates is true
+        const bool printUpdates = true;                         // whether to print the array and information at each operation
 
         static void Main(string[] args)
         {
