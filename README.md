@@ -21,4 +21,4 @@ I may or may not add the following features at some point in the future:
 - Interactive prompt to specify the options upon running the program (as opposed to doing it in the code)
 
 ## This looks fun! Can I get involved?
-Sure! Just create a branch, get coding, and submit a pull request whenever you like! Or fork it and play around with it if you like. 
+Sure! Just fork the repo and submit a pull request whenever you're ready! 
