@@ -42,16 +42,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ArrayOperations.cs" />
-    <Compile Include="Bubble.cs" />
-    <Compile Include="CountAndDisplay.cs" />
-    <Compile Include="CallSpecifiedSort.cs" />
-    <Compile Include="Insertion.cs" />
-    <Compile Include="Merge.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="CompareSorts\ArrayOperations.cs" />
+    <Compile Include="CompareSorts\Bubble.cs" />
+    <Compile Include="CompareSorts\CountAndDisplay.cs" />
+    <Compile Include="CompareSorts\CallSpecifiedSort.cs" />
+    <Compile Include="CompareSorts\Insertion.cs" />
+    <Compile Include="CompareSorts\Merge.cs" />
+    <Compile Include="CompareSorts\Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Quick.cs" />
-    <Compile Include="Selection.cs" />
+    <Compile Include="CompareSorts\Quick.cs" />
+    <Compile Include="CompareSorts\Selection.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
